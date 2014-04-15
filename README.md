@@ -1,5 +1,4 @@
 sources
 =======
 
-android_sources_sumsung_t0lte_shv-e250
-...
+android_sumsung_t0lteskt_shv-e250s
