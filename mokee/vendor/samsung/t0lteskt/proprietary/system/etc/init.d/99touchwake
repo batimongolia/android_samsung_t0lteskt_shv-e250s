@@ -1,0 +1,14 @@
+#!/system/bin/sh
+#
+# thor2002ro touchwake config 2k
+#
+#enabled - values 0=off 1=on
+#delay - amount of time to wait until putting touch screen to sleep(feature won't work after delay runs out but it is required for power saving) || setting it at 0 will enable slide2wake
+#delay value is in ms
+enabled=1
+delay=20000
+
+echo $enabled > /sys/devices/virtual/misc/touchwake/enabled
+echo $delay > /sys/devices/virtual/misc/touchwake/delay
+
+exit 0

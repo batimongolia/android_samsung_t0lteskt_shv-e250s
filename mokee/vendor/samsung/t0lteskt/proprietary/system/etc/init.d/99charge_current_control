@@ -1,0 +1,19 @@
+#!/system/bin/sh
+#
+# thor2002ro charge_current control config 2k
+#
+#ignore_power. This simply ignores unstable power sources and leaves the input current limit at its set up value
+#ignore_margin. The charger chip is capable of detecting unstable charging sources; it dynamically reduces the input current in #100mA steps until it detects a stable voltage input 
+#
+#WARNING: USE THIS AT YOUR OWN RISK!!!
+#
+#ignore_power - values 0=off 1=on
+#ignore_margin - values 0=off 1=on
+#
+ignore_power=0
+ignore_margin=0
+
+echo $ignore_power > /sys/devices/virtual/misc/charge_current/ignore_power
+echo $ignore_margin > /sys/devices/virtual/misc/charge_current/ignore_margin
+
+exit 0
