@@ -1,0 +1,827 @@
+diff -uNr a/vendor/tmobile/apps/ThemeChooser/res/values/mk_strings.xml b/vendor/tmobile/apps/ThemeChooser/res/values/mk_strings.xml
+--- a/vendor/tmobile/apps/ThemeChooser/res/values/mk_strings.xml	2014-04-12 06:03:30.000000000 +0800
++++ b/vendor/tmobile/apps/ThemeChooser/res/values/mk_strings.xml	1970-01-01 08:00:00.000000000 +0800
+@@ -1,22 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2014 The MoKee OpenSource Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<resources xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-
+-    <string name="theme_incompatible">(Incompatible theme)</string>
+-
+-</resources>
+diff -uNr a/vendor/tmobile/apps/ThemeChooser/res/values-zh-rCN/mk_strings.xml b/vendor/tmobile/apps/ThemeChooser/res/values-zh-rCN/mk_strings.xml
+--- a/vendor/tmobile/apps/ThemeChooser/res/values-zh-rCN/mk_strings.xml	2014-04-12 06:03:30.000000000 +0800
++++ b/vendor/tmobile/apps/ThemeChooser/res/values-zh-rCN/mk_strings.xml	1970-01-01 08:00:00.000000000 +0800
+@@ -1,22 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!-- Copyright (C) 2014 The MoKee OpenSource Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-
+-<resources xmlns:android="http://schemas.android.com/apk/res/android"
+-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+-
+-    <string name="theme_incompatible">（不兼容的主题）</string>
+-
+-</resources>
+diff -uNr a/vendor/tmobile/apps/ThemeChooser/src/com/tmobile/themechooser/ThemeChooser.java b/vendor/tmobile/apps/ThemeChooser/src/com/tmobile/themechooser/ThemeChooser.java
+--- a/vendor/tmobile/apps/ThemeChooser/src/com/tmobile/themechooser/ThemeChooser.java	2014-04-12 06:03:30.000000000 +0800
++++ b/vendor/tmobile/apps/ThemeChooser/src/com/tmobile/themechooser/ThemeChooser.java	2014-03-27 04:31:38.000000000 +0800
+@@ -70,8 +70,6 @@
+ 
+     private boolean mShowUninstallIcon = true;
+ 
+-    private boolean mShowApplyIcon = true;
+-
+     @Override
+     public void onCreate(Bundle icicle) {
+         super.onCreate(icicle);
+@@ -176,12 +174,6 @@
+             menu.getItem(1).setVisible(false);
+         }
+ 
+-        if(mShowApplyIcon){
+-            menu.getItem(0).setVisible(true);
+-        } else {
+-            menu.getItem(0).setVisible(false);
+-        }
+-
+         return super.onPrepareOptionsMenu(menu);
+     }
+ 
+@@ -248,15 +240,11 @@
+         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+             ThemeItem item = (ThemeItem)parent.getItemAtPosition(position);
+             mShowUninstallIcon = true;
+-            mShowApplyIcon = true;
+             if (item.getPackageName().isEmpty()) {
+                 mShowUninstallIcon = false;
+             }
+-            if (!item.hasThemePackageScope()) {
+-                mShowApplyIcon = false;
+-            }
+             String text = item.getName();
+-            mThemeNameView.setText(mShowApplyIcon ? text : text + " " + getString(R.string.theme_incompatible));
++            mThemeNameView.setText(text);
+ 
+             ThemeChooser.this.invalidateOptionsMenu();
+         }
+diff -uNr a/vendor/tmobile/libs/com.tmobile.themes/src/com/tmobile/themes/provider/ThemeItem.java b/vendor/tmobile/libs/com.tmobile.themes/src/com/tmobile/themes/provider/ThemeItem.java
+--- a/vendor/tmobile/libs/com.tmobile.themes/src/com/tmobile/themes/provider/ThemeItem.java	2014-04-12 06:03:30.000000000 +0800
++++ b/vendor/tmobile/libs/com.tmobile.themes/src/com/tmobile/themes/provider/ThemeItem.java	2014-04-09 16:31:07.000000000 +0800
+@@ -304,7 +304,10 @@
+         if (theme == null) {
+             return false;
+         }
+-        return getPackageName().equals(theme.getThemePackageName());
++        if (getPackageName().equals(theme.getThemePackageName()) == false) {
++            return false;
++        }
++        return theme.getThemeId().equals(getThemeId());
+     }
+ 
+     public String toString() {
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-ca/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-ca/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-ca/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-ca/strings.xml	2014-04-08 00:03:40.000000000 +0800
+@@ -17,7 +17,7 @@
+      limitations under the License.
+ -->
+ <resources>
+-  <string name="app_name">Proveïdor de temes</string>
++  <string name="app_name">Proveidor de temes</string>
+   <string name="permlab_access_DrmThemeResources">Recursos multimèdia amb lectura protegida per DRM</string>
+   <string name="permdesc_access_DrmThemeResources">Permet a l\'app llegir recursos multimèdia de paquets de temes amb lectura protegida per DRM.</string>
+   <string name="permlab_set_theme">Estableix un tema global</string>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-cs/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-cs/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-cs/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-cs/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Poskytovatel témat</string>
+-  <string name="permlab_access_DrmThemeResources">čtení prostředků témat chráněných DRM</string>
+-  <string name="permdesc_access_DrmThemeResources">Umožní číst soubory balíčků témat chráněných DRM.</string>
+-  <string name="permlab_set_theme">nastavit globální téma</string>
+-  <string name="permdesc_set_theme" product="tablet">Umožní změnit vzhled prostředí tabletu.</string>
+-  <string name="permdesc_set_theme" product="default">Umožní změnit vzhled prostředí telefonu.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Poskytovatel témat</string>
++    <string name="permlab_access_DrmThemeResources">čtení prostředků témat chráněných DRM</string>
++    <string name="permdesc_access_DrmThemeResources">Umožní číst soubory balíčků témat chráněných DRM.</string>
++    <string name="permlab_set_theme">aplikovat téma</string>
++    <string name="permdesc_set_theme" product="tablet">Umožní změnit vzhled prostředí tabletu.</string>
++    <string name="permdesc_set_theme" product="default">Umožní změnit vzhled prostředí telefonu.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-da/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-da/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-da/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-da/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Temaudbyder</string>
+-  <string name="permlab_access_DrmThemeResources">Læs DRM-beskyttede medieressourcer</string>
+-  <string name="permdesc_access_DrmThemeResources">Tillader en app læseadgang til DRM-beskyttede medieressourcer i temapakker.</string>
+-  <string name="permlab_set_theme">Sæt globalt anvendt tema</string>
+-  <string name="permdesc_set_theme" product="tablet">Tillader app\'en at ændre din tablets visuelle tema.</string>
+-  <string name="permdesc_set_theme" product="default">Tillader app\'en at ændre din telefons visuelle tema.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Temaudbyder</string>
++    <string name="permlab_access_DrmThemeResources">Læs DRM-beskyttede medieressourcer</string>
++    <string name="permdesc_access_DrmThemeResources">Tillader en app læseadgang til DRM-beskyttede medieressourcer i temapakker.</string>
++    <string name="permlab_set_theme">Sæt globalt anvendt tema</string>
++    <string name="permdesc_set_theme" product="tablet">Tillader app\'en at ændre din tablets visuelle tema.</string>
++    <string name="permdesc_set_theme" product="default">Tillader app\'en at ændre din telefons visuelle tema.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-fi/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-fi/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-fi/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-fi/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,18 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Teemojen toimittaja</string>
+-  <string name="permlab_access_DrmThemeResources">lue DRM-suojattuja medialähteitä</string>
+-  <string name="permdesc_access_DrmThemeResources">Sallii sovelluksen lukea teemapaketin DRM-suojattuja medialähteitä.</string>
+-  <string name="permlab_set_theme">Aseta yleinen teema</string>
+-  <string name="permdesc_set_theme" product="tablet">Sallii sovelluksen vaihtaa tablettisi visuaalisen teeman.</string>
+-  <string name="permdesc_set_theme" product="default">Sallii sovelluksen vaihtaa puhelimesi visuaalisen teeman.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Teemojen toimittaja</string>
++
++    <!-- Title of an app permission, listed so the user can choose
++         whether they want to allow the app to do this. -->
++    <string name="permlab_access_DrmThemeResources">lue DRM-suojattuja medialähteitä</string>
++
++    <!-- Description of an app permission, allowing access to
++         DRM-protected media resources of theme packages. -->
++    <string name="permdesc_access_DrmThemeResources">Sallii sovelluksen lukea teemapaketin DRM-suojattuja medialähteitä.</string>
++
++    <string name="permlab_set_theme">Aseta yleinen teema</string>
++    <string name="permdesc_set_theme" product="tablet">Sallii sovelluksen vaihtaa tablettisi visuaalisen teeman.</string>
++    <string name="permdesc_set_theme" product="default">Sallii sovelluksen vaihtaa puhelimesi visuaalisen teeman.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-fr/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-fr/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-fr/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-fr/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Fournisseur de thèmes</string>
+-  <string name="permlab_access_DrmThemeResources">Lire les ressources des médias protégés par un DRM</string>
+-  <string name="permdesc_access_DrmThemeResources">Autorise une application à avoir un accès en lecture aux paquets d\'un fournisseur de thèmes protégés par un DRM.</string>
+-  <string name="permlab_set_theme">Définir le thème global à appliquer</string>
+-  <string name="permdesc_set_theme" product="tablet">Autorise une application à modifier le thème visuel de votre tablette.</string>
+-  <string name="permdesc_set_theme" product="default">Autorise une application à modifier le thème visuel de votre téléphone.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Fournisseur de thèmes</string>
++    <string name="permlab_access_DrmThemeResources">Lire les ressources des médias protégés par un DRM</string>
++    <string name="permdesc_access_DrmThemeResources">Autorise une application à avoir un accés en lecture aux paquets d\'un fournisseur de thèmes protégés par un DRM.</string>
++    <string name="permlab_set_theme">Définir le thème global à appliquer</string>
++    <string name="permdesc_set_theme" product="tablet">Autorise une application à modifier le thème visuel de votre tablette.</string>
++    <string name="permdesc_set_theme" product="default">Autorise une application à modifier le thème visuel de votre téléphone.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-hu/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-hu/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-hu/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-hu/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Témakezelő</string>
+-  <string name="permlab_access_DrmThemeResources">DRM-védett média erőforrások olvasása</string>
+-  <string name="permdesc_access_DrmThemeResources">Lehetővé teszi az alkalmazás számára, hogy olvasási hozzáférést kapjon a DRM-védett média erőforrásokhoz (Téma csomagok).</string>
+-  <string name="permlab_set_theme">Globálisan alkalmazott téma beállítása</string>
+-  <string name="permdesc_set_theme" product="tablet">Lehetővé teszi az alkalmazás számára, hogy megváltoztassa a táblagép kinézetét.</string>
+-  <string name="permdesc_set_theme" product="default">Lehetővé teszi az alkalmazás számára, hogy megváltoztassa a telefon kinézetét.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Témakezelő</string>
++    <string name="permlab_access_DrmThemeResources">DRM-védett média erőforrások olvasása</string>
++    <string name="permdesc_access_DrmThemeResources">Lehetővé teszi az alkalmazás számára, hogy olvasási hozzáférést kapjon a DRM-védett média erőforrásokhoz (Téma csomagok).</string>
++    <string name="permlab_set_theme">Globálisan alkalmazott téma beállítása</string>
++    <string name="permdesc_set_theme" product="tablet">Lehetővé teszi az alkalmazás számára, hogy megváltoztassa a táblagép kinézetét.</string>
++    <string name="permdesc_set_theme" product="default">Lehetővé teszi az alkalmazás számára, hogy megváltoztassa a telefon kinézetét.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-iw/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-iw/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-iw/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-iw/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013-2014 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">ספק ערכות עיצוב</string>
+-  <string name="permlab_access_DrmThemeResources">קרא מקורות מדיה מוגני DRM</string>
+-  <string name="permdesc_access_DrmThemeResources">אפשר ליישום לקרוא מקורות מדיה מוגני DRM עבור חבילות ערכות עיצוב.</string>
+-  <string name="permlab_set_theme">קבע ערכת עיצוב כללית</string>
+-  <string name="permdesc_set_theme" product="tablet">אפשר ליישום לשנות את המראה של הטאבלט שלך.</string>
+-  <string name="permdesc_set_theme" product="default">אפשר ליישום לשנות את המראה של הסמארטפון שלך.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">ספק ערכות עיצוב</string>
++    <string name="permlab_access_DrmThemeResources">קרא מקורות מדיה מוגני DRM</string>
++    <string name="permdesc_access_DrmThemeResources">אפשר ליישום לקרוא מקורות מדיה מוגני DRM עבור חבילות ערכות עיצוב.</string>
++    <string name="permlab_set_theme">קבע ערכת עיצוב כללית</string>
++    <string name="permdesc_set_theme" product="tablet">אפשר ליישום לשנות את המראה של הטאבלט שלך.</string>
++    <string name="permdesc_set_theme" product="default">אפשר ליישום לשנות את המראה של הסמארטפון שלך.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-pl/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-pl/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-pl/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-pl/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Dostawca motywów</string>
+-  <string name="permlab_access_DrmThemeResources">odczytywanie zasobów mediów z zabezpieczeniami DRM</string>
+-  <string name="permdesc_access_DrmThemeResources">Pozwala aplikacji na odczytywanie zawartych w pakietach motywów zasobów mediów z zabezpieczeniami DRM.</string>
+-  <string name="permlab_set_theme">ustawianie ogólnego motywu</string>
+-  <string name="permdesc_set_theme" product="tablet">Pozwala aplikacji na zmienianie wizualnego motywu tego tabletu.</string>
+-  <string name="permdesc_set_theme" product="default">Pozwala aplikacji na zmienianie wizualnego motywu tego smartfona.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Dostawca motywów</string>
++    <string name="permlab_access_DrmThemeResources">odczytywanie zasobów mediów z zabezpieczeniami DRM</string>
++    <string name="permdesc_access_DrmThemeResources">Pozwala aplikacji na odczytywanie zawartych w pakietach motywów zasobów mediów z zabezpieczeniami DRM.</string>
++    <string name="permlab_set_theme">ustawianie ogólnego motywu</string>
++    <string name="permdesc_set_theme" product="tablet">Pozwala aplikacji na zmienianie wizualnego motywu tego tabletu.</string>
++    <string name="permdesc_set_theme" product="default">Pozwala aplikacji na zmienianie wizualnego motywu tego smartfona.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-pt-rBR/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-pt-rBR/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-pt-rBR/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-pt-rBR/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Provedor de Temas</string>
+-  <string name="permlab_access_DrmThemeResources">Ler recursos de mídia protegidos por DRM</string>
+-  <string name="permdesc_access_DrmThemeResources">Permite que o aplicativo leia recursos de mídia protegidos por DRM de pacotes temáticos.</string>
+-  <string name="permlab_set_theme">Definir tema global</string>
+-  <string name="permdesc_set_theme" product="tablet">Permite que o aplicativo alterar o tema visual do seu tablet.</string>
+-  <string name="permdesc_set_theme" product="default">Permite que o aplicativo alterar o tema visual do seu telegone.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Provedor de Temas</string>
++    <string name="permlab_access_DrmThemeResources">ler recursos de mídia protegidos por direitos digitais</string>
++    <string name="permdesc_access_DrmThemeResources">Permite uma aplicação ter acesso aos recursos de mídia dos Pacotes de Temas protegidos por direitos digitais.</string>
++    <string name="permlab_set_theme">Definir tema aplicado globalmente</string>
++    <string name="permdesc_set_theme" product="tablet">Permite uma aplicação à trocar o tema visual do seu tablet.</string>
++    <string name="permdesc_set_theme" product="default">Permite uma aplicação à trocar o tema visual do seu telefone.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-pt-rPT/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-pt-rPT/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-pt-rPT/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-pt-rPT/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,10 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Gestor de Temas</string>
+-  <string name="permlab_access_DrmThemeResources">Ler recursos de multimédia protegidos por direitos digitais</string>
+-  <string name="permdesc_access_DrmThemeResources">Permite uma aplicação ter acesso aos recursos de multimédia dos Pacotes de Temas protegidos por direitos digitais.</string>
+-  <string name="permlab_set_theme">Definir tema a ser aplicado globalmente</string>
+-  <string name="permdesc_set_theme" product="tablet">Permite à aplicação trocar o tema visual do seu tablet.</string>
+-  <string name="permdesc_set_theme" product="default">Permite à aplicação trocar o tema visual do seu telefone.</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Gestor de Temas</string>
++    <string name="permlab_access_DrmThemeResources">Ler recursos de multimédia protegidos por direitos digitais</string>
++    <string name="permdesc_access_DrmThemeResources">Permite uma aplicação ter acesso aos recursos de multimédia dos Pacotes de Temas protegidos por direitos digitais.</string>
++    <string name="permlab_set_theme">Definir tema a ser aplicado globalmente</string>
++    <string name="permdesc_set_theme">Permite à aplicação trocar o tema visual do seu telefone.</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-tr/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-tr/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-tr/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-tr/strings.xml	1970-01-01 08:00:00.000000000 +0800
+@@ -1,26 +0,0 @@
+-<?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
+-
+-     Licensed under the Apache License, Version 2.0 (the "License");
+-     you may not use this file except in compliance with the License.
+-     You may obtain a copy of the License at
+-
+-          http://www.apache.org/licenses/LICENSE-2.0
+-
+-     Unless required by applicable law or agreed to in writing, software
+-     distributed under the License is distributed on an "AS IS" BASIS,
+-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-     See the License for the specific language governing permissions and
+-     limitations under the License.
+--->
+-<resources>
+-  <string name="app_name">Tema sağlayıcısı</string>
+-  <string name="permlab_access_DrmThemeResources">DRM korumalı ortam kaynaklarını oku</string>
+-  <string name="permdesc_access_DrmThemeResources">Uygulamanın tema paketlerini DRM korumalı kaynaklardan okumasına izin verir.</string>
+-  <string name="permlab_set_theme">Genel tema ayarla</string>
+-  <string name="permdesc_set_theme" product="tablet">Uygulamaların tabletinizin görüntü temasını değiştirmesine izin ver.</string>
+-  <string name="permdesc_set_theme" product="default">Uygulamaların telefonunuzun görüntü temasını değiştirmesine izin ver.</string>
+-</resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-zh-rCN/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-zh-rCN/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-zh-rCN/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-zh-rCN/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">主题提供者</string>
+-  <string name="permlab_access_DrmThemeResources">读取带有 DRM 保护的媒体资源</string>
+-  <string name="permdesc_access_DrmThemeResources">授予程序读取带有 DRM 保护媒体资源的权限</string>
+-  <string name="permlab_set_theme">设定全系统应用的主题</string>
+-  <string name="permdesc_set_theme" product="tablet">允许程序改变您的平板的视觉主题。</string>
+-  <string name="permdesc_set_theme" product="default">允许程序改变您的手机的视觉主题。</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">主题提供器</string>
++    <string name="permlab_access_DrmThemeResources">读取带有 DRM 保护的媒体资源</string>
++    <string name="permdesc_access_DrmThemeResources">授予程序读取带有 DRM 保护媒体资源的权限</string>
++    <string name="permlab_set_theme">设定全系统应用的主题</string>
++    <string name="permdesc_set_theme" product="tablet">允许程序改变您的平板的视觉主题。</string>
++    <string name="permdesc_set_theme" product="default">允许程序改变您的手机的视觉主题。</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/res/values-zh-rTW/strings.xml b/vendor/tmobile/providers/ThemeManager/res/values-zh-rTW/strings.xml
+--- a/vendor/tmobile/providers/ThemeManager/res/values-zh-rTW/strings.xml	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/res/values-zh-rTW/strings.xml	2014-03-27 04:31:39.000000000 +0800
+@@ -1,8 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!--Generated by crowdin.net-->
+-<!--
+-     Copyright (C) 2010 T-Mobile USA, Inc.
+-     Copyright (C) 2011-2014 The CyanogenMod Project
++<!-- Copyright (C) 2010 T-Mobile USA, Inc.
++     Copyright (C) 2013 The CyanogenMod Project
+ 
+      Licensed under the Apache License, Version 2.0 (the "License");
+      you may not use this file except in compliance with the License.
+@@ -16,11 +14,11 @@
+      See the License for the specific language governing permissions and
+      limitations under the License.
+ -->
+-<resources>
+-  <string name="app_name">Themes provider</string>
+-  <string name="permlab_access_DrmThemeResources">讀取受 DRM 保護的媒體資源</string>
+-  <string name="permdesc_access_DrmThemeResources">允許應用程式讀取主題套件中受 DRM 保護的媒體資源。</string>
+-  <string name="permlab_set_theme">設定全域主題</string>
+-  <string name="permdesc_set_theme" product="tablet">允許應用程式變更您平板電腦的視覺主題。</string>
+-  <string name="permdesc_set_theme" product="default">允許應用程式變更您手機的視覺主題。</string>
++<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
++    <string name="app_name">Themes Provider</string>
++    <string name="permlab_access_DrmThemeResources">讀取受 DRM 保護的媒體資源</string>
++    <string name="permdesc_access_DrmThemeResources">允許此應用程式讀取主題套件中受 DRM 保護的媒體資源。</string>
++    <string name="permlab_set_theme">設定全域主題</string>
++    <string name="permdesc_set_theme" product="tablet">允許應用程式更改您平板電腦的視覺主題。</string>
++    <string name="permdesc_set_theme" product="default">允許應用程式更改您手機的視覺主題。</string>
+ </resources>
+diff -uNr a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/PackageResourcesProvider.java b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/PackageResourcesProvider.java
+--- a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/PackageResourcesProvider.java	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/PackageResourcesProvider.java	2014-03-27 04:31:39.000000000 +0800
+@@ -119,7 +119,7 @@
+         }
+ 
+         return createResourcesForTheme(key,
+-                pi.applicationInfo.publicSourceDir, pi.applicationInfo.sourceDir);
++                pi.applicationInfo.publicSourceDir, pi.getLockedZipFilePath());
+     }
+ 
+     private synchronized Resources createResourcesForTheme(final PackageKey key,
+diff -uNr a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/ThemesProvider.java b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/ThemesProvider.java
+--- a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/ThemesProvider.java	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/provider/ThemesProvider.java	2014-03-27 04:31:39.000000000 +0800
+@@ -34,7 +34,7 @@
+ import android.content.pm.ApplicationInfo;
+ import android.content.pm.PackageInfo;
+ import android.content.pm.PackageManager.NameNotFoundException;
+-import android.content.pm.LegacyThemeInfo;
++import android.content.pm.ThemeInfo;
+ import android.content.res.CustomTheme;
+ import android.content.res.Resources;
+ import android.content.res.Resources.NotFoundException;
+@@ -288,7 +288,8 @@
+             }
+ 
+             /* List all currently installed theme packages. */
+-            List<PackageInfo> themePackages = ThemeUtilities.getInstalledThemePackages(getContext());
++            List<PackageInfo> themePackages = getContext().getPackageManager()
++                    .getInstalledThemePackages();
+ 
+             /*
+              * Get a sorted cursor of all currently known themes. We'll walk
+@@ -310,7 +311,7 @@
+ 
+             try {
+                 for (PackageInfo pi: themePackages) {
+-                    if (pi.legacyThemeInfos == null) {
++                    if (pi.themeInfos == null) {
+                         continue;
+                     }
+ 
+@@ -319,7 +320,7 @@
+                      * along to efficiently detect differences. This method
+                      * handles insert, delete, and modify returning with
+                      * `current' positioned ahead of the theme matching the last
+-                     * of `pi's LegacyThemeInfo objects (or passed the last
++                     * of `pi's ThemeInfo objects (or passed the last
+                      * entry if the cursor is exhausted).
+                      */
+                     boolean invalidated = detectPackageChange(getContext(), mDb, pi, current,
+@@ -354,16 +355,16 @@
+             PackageInfo pi, Cursor current, ThemeItem currentItem, CustomTheme appliedTheme) {
+         boolean notifyChanges = false;
+ 
+-        if (pi.legacyThemeInfos == null)
++        if (pi.themeInfos == null)
+             return false;
+ 
+-        Arrays.sort(pi.legacyThemeInfos, new Comparator<LegacyThemeInfo>() {
+-            public int compare(LegacyThemeInfo a, LegacyThemeInfo b) {
++        Arrays.sort(pi.themeInfos, new Comparator<ThemeInfo>() {
++            public int compare(ThemeInfo a, ThemeInfo b) {
+                 return a.themeId.compareTo(b.themeId);
+             }
+         });
+ 
+-        for (LegacyThemeInfo ti: pi.legacyThemeInfos) {
++        for (ThemeInfo ti: pi.themeInfos) {
+             String currPackageName = null;
+             String currThemeId = null;
+ 
+@@ -425,7 +426,7 @@
+         return notifyChanges;
+     }
+ 
+-    private static boolean hasHostDensity(Context context, PackageInfo pi, LegacyThemeInfo ti) {
++    private static boolean hasHostDensity(Context context, PackageInfo pi, ThemeInfo ti) {
+         try {
+             Resources res = context.createPackageContext(pi.packageName, 0).getResources();
+ 
+@@ -449,10 +450,13 @@
+         }
+     }
+ 
+-    private static boolean hasThemePackageScope(Context context, PackageInfo pi, LegacyThemeInfo ti) {
++    private static boolean hasThemePackageScope(Context context, PackageInfo pi, ThemeInfo ti) {
+         if ((ti.previewResourceId >>> 24) == 0x0a) {
+             return true;
+         }
++        if ((ti.styleResourceId >>> 24) == 0x0a) {
++            return true;
++        }
+         if ((ti.wallpaperResourceId >>> 24) == 0x0a) {
+             return true;
+         }
+@@ -463,14 +467,15 @@
+     }
+ 
+     private static void populateContentValues(Context context, ContentValues outValues,
+-            PackageInfo pi, LegacyThemeInfo ti, boolean isCurrentTheme) {
++            PackageInfo pi, ThemeInfo ti, boolean isCurrentTheme) {
+         outValues.put(ThemeColumns.IS_APPLIED, isCurrentTheme ? 1 : 0);
+         outValues.put(ThemeColumns.THEME_ID, ti.themeId);
+         outValues.put(ThemeColumns.THEME_PACKAGE, pi.packageName);
+         outValues.put(ThemeColumns.NAME, ti.name);
+-        outValues.put(ThemeColumns.STYLE_NAME, ti.name);
++        outValues.put(ThemeColumns.STYLE_NAME,
++                ti.themeStyleName != null ? ti.themeStyleName : ti.name);
+         outValues.put(ThemeColumns.AUTHOR, ti.author);
+-        outValues.put(ThemeColumns.IS_DRM, 0);
++        outValues.put(ThemeColumns.IS_DRM, ti.isDrmProtected ? 1 : 0);
+         outValues.put(ThemeColumns.IS_SYSTEM,
+                 ((pi.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) ? 1 : 0);
+         outValues.put(ThemeColumns.HAS_HOST_DENSITY, hasHostDensity(context, pi, ti) ? 1 : 0);
+@@ -482,6 +487,20 @@
+                     PackageResources.makeResourceIdUri(pi.packageName, ti.wallpaperResourceId)
+                         .toString());
+         }
++        if (ti.ringtoneFileName != null) {
++            outValues.put(ThemeColumns.RINGTONE_NAME, ti.ringtoneName);
++            outValues.put(ThemeColumns.RINGTONE_NAME_KEY, Audio.keyFor(ti.ringtoneName));
++            outValues.put(ThemeColumns.RINGTONE_URI,
++                    PackageResources.makeAssetPathUri(pi.packageName, ti.ringtoneFileName)
++                        .toString());
++        }
++        if (ti.notificationRingtoneFileName != null) {
++            outValues.put(ThemeColumns.NOTIFICATION_RINGTONE_NAME, ti.notificationRingtoneName);
++            outValues.put(ThemeColumns.NOTIFICATION_RINGTONE_NAME_KEY, Audio.keyFor(ti.notificationRingtoneName));
++            outValues.put(ThemeColumns.NOTIFICATION_RINGTONE_URI,
++                    PackageResources.makeAssetPathUri(pi.packageName,
++                            ti.notificationRingtoneFileName).toString());
++        }
+         if (ti.thumbnailResourceId != 0) {
+             outValues.put(ThemeColumns.THUMBNAIL_URI,
+                     PackageResources.makeResourceIdUri(pi.packageName, ti.thumbnailResourceId)
+@@ -526,7 +545,7 @@
+     }
+ 
+     private static void insertTheme(Context context, SQLiteDatabase db,
+-            PackageInfo pi, LegacyThemeInfo ti, boolean isCurrentTheme) {
++            PackageInfo pi, ThemeInfo ti, boolean isCurrentTheme) {
+         if (Constants.DEBUG) {
+             Log.i(Constants.TAG, "ThemesProvider out of sync: inserting " +
+                     pi.packageName + "/" + ti.themeId);
+@@ -538,7 +557,7 @@
+     }
+ 
+     private static boolean verifyOrUpdateTheme(Context context, SQLiteDatabase db,
+-            PackageInfo pi, LegacyThemeInfo ti, ThemeItem existing, boolean isCurrentTheme) {
++            PackageInfo pi, ThemeInfo ti, ThemeItem existing, boolean isCurrentTheme) {
+         boolean invalidated = false;
+ 
+         /*
+@@ -628,8 +647,8 @@
+                         Log.i(Constants.TAG, "Handling new theme package: " + pkg);
+                     }
+                     PackageInfo pi = context.getPackageManager().getPackageInfo(pkg, 0);
+-                    if (pi != null && pi.legacyThemeInfos != null) {
+-                        for (LegacyThemeInfo ti: pi.legacyThemeInfos) {
++                    if (pi != null && pi.themeInfos != null) {
++                        for (ThemeInfo ti: pi.themeInfos) {
+                             insertTheme(context, db, pi, ti, false);
+                         }
+                     }
+diff -uNr a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ChangeThemeReceiver.java b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ChangeThemeReceiver.java
+--- a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ChangeThemeReceiver.java	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ChangeThemeReceiver.java	2014-03-27 04:31:39.000000000 +0800
+@@ -54,6 +54,8 @@
+                     intent.getType() == null ||
+                     ThemeColumns.CONTENT_ITEM_TYPE.equals(intent.getType())) {
+                 ThemeUtilities.applyTheme(context, item, intent);
++            } else if (ThemeColumns.STYLE_CONTENT_ITEM_TYPE.equals(intent.getType())) {
++                ThemeUtilities.applyStyle(context, item);
+             } else {
+                 Log.w(Constants.TAG,
+                         "Ignoring unknown change theme request (but we aborted it, sorry)...");
+diff -uNr a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ThemePackageReceiver.java b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ThemePackageReceiver.java
+--- a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ThemePackageReceiver.java	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/receiver/ThemePackageReceiver.java	2014-03-27 04:31:39.000000000 +0800
+@@ -40,8 +40,8 @@
+                 if (action.equals(Intent.ACTION_PACKAGE_ADDED)) {
+                     PackageInfo pi = context.getPackageManager().getPackageInfo(pkg, 0);
+                     if (isThemeFromPackageApplied(context, pkg) &&
+-                            pi.legacyThemeInfos != null && pi.legacyThemeInfos.length > 0) {
+-                        ThemeUtilities.updateConfiguration(context, pi, pi.legacyThemeInfos[0]);
++                            pi.themeInfos != null && pi.themeInfos.length > 0) {
++                        ThemeUtilities.updateConfiguration(context, pi, pi.themeInfos[0]);
+                     }
+                 }
+             } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)) {
+diff -uNr a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/utils/ThemeUtilities.java b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/utils/ThemeUtilities.java
+--- a/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/utils/ThemeUtilities.java	2014-04-12 06:03:31.000000000 +0800
++++ b/vendor/tmobile/providers/ThemeManager/src/com/tmobile/thememanager/utils/ThemeUtilities.java	2014-03-27 04:31:39.000000000 +0800
+@@ -16,7 +16,6 @@
+ 
+ package com.tmobile.thememanager.utils;
+ 
+-import android.content.pm.PackageManager;
+ import com.tmobile.thememanager.Constants;
+ import com.tmobile.themes.ThemeManager;
+ import com.tmobile.themes.provider.ThemeItem;
+@@ -28,17 +27,13 @@
+ import android.content.Context;
+ import android.content.Intent;
+ import android.content.pm.PackageInfo;
+-import android.content.pm.LegacyThemeInfo;
++import android.content.pm.ThemeInfo;
+ import android.content.res.Configuration;
+ import android.content.res.CustomTheme;
+ import android.media.RingtoneManager;
+ import android.net.Uri;
+ import android.util.Log;
+ 
+-import java.util.ArrayList;
+-import java.util.Iterator;
+-import java.util.List;
+-
+ public class ThemeUtilities {
+ 
+     /**
+@@ -78,7 +73,7 @@
+      * caller to override certain components of a theme with user-supplied
+      * values.
+      */
+-    public static void applyTheme(final Context context, ThemeItem theme, Intent request) {
++    public static void applyTheme(Context context, ThemeItem theme, Intent request) {
+         String themeType = request.getType();
+         boolean extendedThemeChange =
+             request.getBooleanExtra(ThemeManager.EXTRA_EXTENDED_THEME_CHANGE, false);
+@@ -154,20 +149,19 @@
+         applyStyleInternal(context, theme);
+ 
+         /* Broadcast theme change. */
+-        final Intent intent = new Intent(ThemeManager.ACTION_THEME_CHANGED)
+-                .setDataAndType(theme.getUri(context), themeType);
+-        context.sendBroadcast(intent);
++        context.sendBroadcast(new Intent(ThemeManager.ACTION_THEME_CHANGED)
++                .setDataAndType(theme.getUri(context), themeType));
+     }
+ 
+     public static void updateConfiguration(Context context, CustomTheme theme) {
+-        updateConfiguration(context, theme.getThemePackageName(), theme.getThemePackageName());
++        updateConfiguration(context, theme.getThemePackageName(), theme.getThemeId());
+     }
+ 
+     public static void updateConfiguration(Context context, ThemeItem theme) {
+-        updateConfiguration(context, theme.getPackageName(), theme.getPackageName());
++        updateConfiguration(context, theme.getPackageName(), theme.getThemeId());
+     }
+ 
+-    public static void updateConfiguration(Context context, PackageInfo pi, LegacyThemeInfo ti) {
++    public static void updateConfiguration(Context context, PackageInfo pi, ThemeInfo ti) {
+         updateConfiguration(context, pi.packageName, ti.themeId);
+     }
+ 
+@@ -175,18 +169,17 @@
+         ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+         Configuration currentConfig = am.getConfiguration();
+ 
+-        currentConfig.customTheme = new CustomTheme(packageName, packageName, packageName);
++        currentConfig.customTheme = new CustomTheme(themeId, packageName);
+         am.updateConfiguration(currentConfig);
+     }
+ 
+     public static CustomTheme getAppliedTheme(Context context) {
+         ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
+         Configuration config = am.getConfiguration();
+-        return (config.customTheme != null ? config.customTheme :
+-                CustomTheme.getBootTheme(context.getContentResolver()));
++        return (config.customTheme != null ? config.customTheme : CustomTheme.getBootTheme());
+     }
+ 
+-    public static int compareTheme(ThemeItem item, PackageInfo pi, LegacyThemeInfo ti) {
++    public static int compareTheme(ThemeItem item, PackageInfo pi, ThemeInfo ti) {
+         int cmp = item.getPackageName().compareTo(pi.packageName);
+         if (cmp != 0) {
+             return cmp;
+@@ -194,25 +187,13 @@
+         return item.getThemeId().compareTo(ti.themeId);
+     }
+ 
+-    public static boolean themeEquals(PackageInfo pi, LegacyThemeInfo ti, CustomTheme current) {
++    public static boolean themeEquals(PackageInfo pi, ThemeInfo ti, CustomTheme current) {
+         if (!pi.packageName.equals(current.getThemePackageName())) {
+             return false;
+         }
+-        if (!ti.themeId.equals(current.getThemePackageName())) {
++        if (!ti.themeId.equals(current.getThemeId())) {
+             return false;
+         }
+         return true;
+     }
+-
+-    public static List<PackageInfo> getInstalledThemePackages(Context context) {
+-        // Returns a list of theme APKs.
+-        ArrayList<PackageInfo> finalList = new ArrayList<PackageInfo>();
+-        PackageManager pm = context.getPackageManager();
+-        for (PackageInfo pi : pm.getInstalledPackages(0)) {
+-            if (pi != null && pi.isThemeApk) {
+-                finalList.add(pi);
+-            }
+-        }
+-        return finalList;
+-    }
+ }
